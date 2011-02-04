@@ -1113,9 +1113,26 @@ SC.CoreView.reopen(
   */
   init: function() {
     var parentView = this.get('parentView'),
-        path, root, lp, displayProperties ;
+        path, root, lp, displayProperties, val ;
 
     sc_super();
+
+    var childViews;
+
+    if(this.hasOwnProperty('childViews')) {
+      childViews = this.get('childViews').slice();
+    } else {
+      childViews = [];
+
+      for(var prop in this) {
+        if(this.hasOwnProperty(prop)) {
+          val = this[prop];
+          if(val instanceof SC.CoreView) { childViews.push(prop); }
+        }
+      }
+    }
+
+    this.childViews = childViews;
 
     // TODO: This makes it impossible to override
     this.layoutStyleCalculator = SC.View.LayoutStyleCalculator.create({ view: this });
@@ -1124,8 +1141,7 @@ SC.CoreView.reopen(
     // SC.RootResponder to dispatch incoming events.
     SC.View.views[this.get('layerId')] = this;
 
-    // setup child views.  be sure to clone the child views array first
-    this.childViews = this.get('childViews').slice() ;
+    // setup child views.
     this.createChildViews() ; // setup child Views
 
     // register display property observers ..
